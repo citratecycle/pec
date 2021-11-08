@@ -1,0 +1,7 @@
+# Ignore everything
+*.*
+
+# Keep track of itself and .md and .py
+!.gitignore
+!*.md
+!*.py
