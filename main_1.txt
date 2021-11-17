@@ -1,0 +1,50 @@
+I'm very vegetable. I know nothing about what I'm doing right now, and currently I only want to touch fish and hua water.
+Files already downloaded and verified
+Accuracy of the network on the 10000 test images: 80 %
+Accuracy of plane : 81 %
+Accuracy of   car : 85 %
+Accuracy of  bird : 76 %
+Accuracy of   cat : 66 %
+Accuracy of  deer : 74 %
+Accuracy of   dog : 73 %
+Accuracy of  frog : 84 %
+Accuracy of horse : 83 %
+Accuracy of  ship : 91 %
+Accuracy of truck : 90 %
+time consumed (all): 2.2885606717318296
+Accuracy of the network on the 10000 test images: 59 %
+Accuracy of plane : 64 %
+Accuracy of   car : 74 %
+Accuracy of  bird : 35 %
+Accuracy of   cat : 41 %
+Accuracy of  deer : 41 %
+Accuracy of   dog : 62 %
+Accuracy of  frog : 74 %
+Accuracy of horse : 70 %
+Accuracy of  ship : 59 %
+Accuracy of truck : 74 %
+time consumed (exit1): 2.1714461408555508
+Accuracy of the network on the 10000 test images: 69 %
+Accuracy of plane : 68 %
+Accuracy of   car : 83 %
+Accuracy of  bird : 54 %
+Accuracy of   cat : 53 %
+Accuracy of  deer : 54 %
+Accuracy of   dog : 66 %
+Accuracy of  frog : 77 %
+Accuracy of horse : 74 %
+Accuracy of  ship : 78 %
+Accuracy of truck : 76 %
+time consumed (exit2): 2.3921943698078394
+Accuracy of the network on the 10000 test images: 71 %
+Accuracy of plane : 75 %
+Accuracy of   car : 85 %
+Accuracy of  bird : 55 %
+Accuracy of   cat : 59 %
+Accuracy of  deer : 56 %
+Accuracy of   dog : 70 %
+Accuracy of  frog : 81 %
+Accuracy of horse : 77 %
+Accuracy of  ship : 77 %
+Accuracy of truck : 81 %
+time consumed (exit3): 2.3593074213713408

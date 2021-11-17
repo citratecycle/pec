@@ -1,0 +1,435 @@
+I'm very vegetable. I know nothing about what I'm doing right now, and currently I only want to touch fish and hua water.
+Files already downloaded and verified
+cuda
+
+
+optimizer: adam
+batch size: 128
+epoch number: 100
+learning rate: 0.001
+training mode: exit2
+
+
+the parameter names and shapes for model is:
+name: conv1.weight, parameter shape: torch.Size([16, 3, 3, 3])
+name: conv1.bias, parameter shape: torch.Size([16])
+name: conv2.weight, parameter shape: torch.Size([32, 16, 3, 3])
+name: conv2.bias, parameter shape: torch.Size([32])
+name: conv3.weight, parameter shape: torch.Size([64, 32, 3, 3])
+name: conv3.bias, parameter shape: torch.Size([64])
+name: conv4.weight, parameter shape: torch.Size([128, 64, 3, 3])
+name: conv4.bias, parameter shape: torch.Size([128])
+name: fc1.weight, parameter shape: torch.Size([1024, 3200])
+name: fc1.bias, parameter shape: torch.Size([1024])
+name: fc2.weight, parameter shape: torch.Size([10, 1024])
+name: fc2.bias, parameter shape: torch.Size([10])
+name: exit_1.a, parameter shape: torch.Size([1])
+name: exit_1.c, parameter shape: torch.Size([1])
+name: exit_1.n1, parameter shape: torch.Size([1])
+name: exit_1.n2, parameter shape: torch.Size([1])
+name: exit_1.codebook.weight, parameter shape: torch.Size([64, 32, 1, 1])
+name: exit_1.codebook.bias, parameter shape: torch.Size([64])
+name: exit_1_fc.weight, parameter shape: torch.Size([10, 64])
+name: exit_1_fc.bias, parameter shape: torch.Size([10])
+name: exit_2.a, parameter shape: torch.Size([1])
+name: exit_2.c, parameter shape: torch.Size([1])
+name: exit_2.n1, parameter shape: torch.Size([1])
+name: exit_2.n2, parameter shape: torch.Size([1])
+name: exit_2.codebook.weight, parameter shape: torch.Size([64, 128, 1, 1])
+name: exit_2.codebook.bias, parameter shape: torch.Size([64])
+now testing the accuracy for mode all
+Accuracy of the network on the 10000 test images: 79 %
+Accuracy of plane : 84 %
+Accuracy of   car : 90 %
+Accuracy of  bird : 74 %
+Accuracy of   cat : 62 %
+Accuracy of  deer : 74 %
+Accuracy of   dog : 72 %
+Accuracy of  frog : 85 %
+Accuracy of horse : 81 %
+Accuracy of  ship : 89 %
+Accuracy of truck : 88 %
+now testing the accuracy for mode exit1
+Accuracy of the network on the 10000 test images: 61 %
+Accuracy of plane : 63 %
+Accuracy of   car : 79 %
+Accuracy of  bird : 40 %
+Accuracy of   cat : 54 %
+Accuracy of  deer : 45 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 74 %
+Accuracy of horse : 72 %
+Accuracy of  ship : 72 %
+Accuracy of truck : 67 %
+
+Epoch: 1
+[1,   100] loss: 0.10912 |  Acc: 38.375% (4912/12800)
+[1,   200] loss: 0.05958 |  Acc: 57.750% (7392/12800)
+[1,   300] loss: 0.05508 |  Acc: 61.305% (7847/12800)
+
+Epoch: 2
+[2,   100] loss: 0.05199 |  Acc: 63.359% (8110/12800)
+[2,   200] loss: 0.05164 |  Acc: 64.062% (8200/12800)
+[2,   300] loss: 0.05102 |  Acc: 64.516% (8258/12800)
+
+Epoch: 3
+[3,   100] loss: 0.05031 |  Acc: 65.031% (8324/12800)
+[3,   200] loss: 0.05041 |  Acc: 64.773% (8291/12800)
+[3,   300] loss: 0.05046 |  Acc: 64.625% (8272/12800)
+
+Epoch: 4
+[4,   100] loss: 0.04948 |  Acc: 65.523% (8387/12800)
+[4,   200] loss: 0.04993 |  Acc: 65.125% (8336/12800)
+[4,   300] loss: 0.04967 |  Acc: 65.438% (8376/12800)
+
+Epoch: 5
+[5,   100] loss: 0.04921 |  Acc: 65.250% (8352/12800)
+[5,   200] loss: 0.04888 |  Acc: 66.148% (8467/12800)
+[5,   300] loss: 0.04945 |  Acc: 65.781% (8420/12800)
+begin middle test:
+Accuracy of the network on the 10000 test images: 64 %
+
+Epoch: 6
+[6,   100] loss: 0.04890 |  Acc: 65.617% (8399/12800)
+[6,   200] loss: 0.04910 |  Acc: 65.914% (8437/12800)
+[6,   300] loss: 0.04925 |  Acc: 65.812% (8424/12800)
+
+Epoch: 7
+[7,   100] loss: 0.04853 |  Acc: 65.906% (8436/12800)
+[7,   200] loss: 0.04878 |  Acc: 66.008% (8449/12800)
+[7,   300] loss: 0.04854 |  Acc: 66.250% (8480/12800)
+
+Epoch: 8
+[8,   100] loss: 0.04811 |  Acc: 66.719% (8540/12800)
+[8,   200] loss: 0.04815 |  Acc: 66.180% (8471/12800)
+[8,   300] loss: 0.04840 |  Acc: 66.438% (8504/12800)
+
+Epoch: 9
+[9,   100] loss: 0.04773 |  Acc: 66.844% (8556/12800)
+[9,   200] loss: 0.04798 |  Acc: 66.773% (8547/12800)
+[9,   300] loss: 0.04774 |  Acc: 66.656% (8532/12800)
+
+Epoch: 10
+[10,   100] loss: 0.04752 |  Acc: 66.711% (8539/12800)
+[10,   200] loss: 0.04753 |  Acc: 66.930% (8567/12800)
+[10,   300] loss: 0.04773 |  Acc: 66.719% (8540/12800)
+begin middle test:
+Accuracy of the network on the 10000 test images: 65 %
+
+Epoch: 11
+[11,   100] loss: 0.04673 |  Acc: 67.609% (8654/12800)
+[11,   200] loss: 0.04714 |  Acc: 67.016% (8578/12800)
+[11,   300] loss: 0.04761 |  Acc: 66.789% (8549/12800)
+
+Epoch: 12
+[12,   100] loss: 0.04692 |  Acc: 67.586% (8651/12800)
+[12,   200] loss: 0.04717 |  Acc: 67.047% (8582/12800)
+[12,   300] loss: 0.04687 |  Acc: 67.336% (8619/12800)
+
+Epoch: 13
+[13,   100] loss: 0.04652 |  Acc: 67.617% (8655/12800)
+[13,   200] loss: 0.04626 |  Acc: 67.672% (8662/12800)
+[13,   300] loss: 0.04676 |  Acc: 67.469% (8636/12800)
+
+Epoch: 14
+[14,   100] loss: 0.04602 |  Acc: 68.195% (8729/12800)
+[14,   200] loss: 0.04602 |  Acc: 68.039% (8709/12800)
+[14,   300] loss: 0.04619 |  Acc: 67.812% (8680/12800)
+
+Epoch: 15
+[15,   100] loss: 0.04597 |  Acc: 68.000% (8704/12800)
+[15,   200] loss: 0.04564 |  Acc: 68.406% (8756/12800)
+[15,   300] loss: 0.04626 |  Acc: 68.070% (8713/12800)
+begin middle test:
+Accuracy of the network on the 10000 test images: 66 %
+
+Epoch: 16
+[16,   100] loss: 0.04550 |  Acc: 68.234% (8734/12800)
+[16,   200] loss: 0.04555 |  Acc: 68.430% (8759/12800)
+[16,   300] loss: 0.04584 |  Acc: 68.227% (8733/12800)
+
+Epoch: 17
+[17,   100] loss: 0.04518 |  Acc: 68.594% (8780/12800)
+[17,   200] loss: 0.04533 |  Acc: 68.555% (8775/12800)
+[17,   300] loss: 0.04513 |  Acc: 68.664% (8789/12800)
+
+Epoch: 18
+[18,   100] loss: 0.04508 |  Acc: 68.539% (8773/12800)
+[18,   200] loss: 0.04492 |  Acc: 68.867% (8815/12800)
+[18,   300] loss: 0.04543 |  Acc: 68.516% (8770/12800)
+
+Epoch: 19
+[19,   100] loss: 0.04447 |  Acc: 69.211% (8859/12800)
+[19,   200] loss: 0.04476 |  Acc: 68.805% (8807/12800)
+[19,   300] loss: 0.04487 |  Acc: 68.852% (8813/12800)
+
+Epoch: 20
+[20,   100] loss: 0.04424 |  Acc: 69.211% (8859/12800)
+[20,   200] loss: 0.04443 |  Acc: 68.969% (8828/12800)
+[20,   300] loss: 0.04469 |  Acc: 68.766% (8802/12800)
+begin middle test:
+Accuracy of the network on the 10000 test images: 67 %
+
+Epoch: 21
+[21,   100] loss: 0.04424 |  Acc: 69.055% (8839/12800)
+[21,   200] loss: 0.04384 |  Acc: 69.180% (8855/12800)
+[21,   300] loss: 0.04483 |  Acc: 68.648% (8787/12800)
+
+Epoch: 22
+[22,   100] loss: 0.04387 |  Acc: 69.477% (8893/12800)
+[22,   200] loss: 0.04431 |  Acc: 69.484% (8894/12800)
+[22,   300] loss: 0.04427 |  Acc: 69.188% (8856/12800)
+
+Epoch: 23
+[23,   100] loss: 0.04364 |  Acc: 69.594% (8908/12800)
+[23,   200] loss: 0.04375 |  Acc: 69.570% (8905/12800)
+[23,   300] loss: 0.04428 |  Acc: 69.258% (8865/12800)
+
+Epoch: 24
+[24,   100] loss: 0.04345 |  Acc: 69.547% (8902/12800)
+[24,   200] loss: 0.04350 |  Acc: 69.695% (8921/12800)
+[24,   300] loss: 0.04383 |  Acc: 69.570% (8905/12800)
+
+Epoch: 25
+[25,   100] loss: 0.04369 |  Acc: 69.586% (8907/12800)
+[25,   200] loss: 0.04350 |  Acc: 69.922% (8950/12800)
+[25,   300] loss: 0.04379 |  Acc: 69.547% (8902/12800)
+begin middle test:
+Accuracy of the network on the 10000 test images: 67 %
+
+Epoch: 26
+[26,   100] loss: 0.04338 |  Acc: 70.023% (8963/12800)
+[26,   200] loss: 0.04334 |  Acc: 70.117% (8975/12800)
+[26,   300] loss: 0.04366 |  Acc: 69.453% (8890/12800)
+
+Epoch: 27
+[27,   100] loss: 0.04333 |  Acc: 69.938% (8952/12800)
+[27,   200] loss: 0.04315 |  Acc: 70.250% (8992/12800)
+[27,   300] loss: 0.04358 |  Acc: 69.758% (8929/12800)
+
+Epoch: 28
+[28,   100] loss: 0.04309 |  Acc: 70.047% (8966/12800)
+[28,   200] loss: 0.04298 |  Acc: 69.891% (8946/12800)
+[28,   300] loss: 0.04319 |  Acc: 69.781% (8932/12800)
+
+Epoch: 29
+[29,   100] loss: 0.04265 |  Acc: 70.461% (9019/12800)
+[29,   200] loss: 0.04300 |  Acc: 70.328% (9002/12800)
+[29,   300] loss: 0.04328 |  Acc: 69.602% (8909/12800)
+
+Epoch: 30
+[30,   100] loss: 0.04261 |  Acc: 70.320% (9001/12800)
+[30,   200] loss: 0.04259 |  Acc: 70.500% (9024/12800)
+[30,   300] loss: 0.04293 |  Acc: 70.023% (8963/12800)
+begin middle test:
+Accuracy of the network on the 10000 test images: 67 %
+
+Epoch: 31
+[31,   100] loss: 0.04264 |  Acc: 70.383% (9009/12800)
+[31,   200] loss: 0.04227 |  Acc: 70.695% (9049/12800)
+[31,   300] loss: 0.04301 |  Acc: 69.875% (8944/12800)
+
+Epoch: 32
+[32,   100] loss: 0.04285 |  Acc: 70.453% (9018/12800)
+[32,   200] loss: 0.04241 |  Acc: 70.609% (9038/12800)
+[32,   300] loss: 0.04286 |  Acc: 70.312% (9000/12800)
+
+Epoch: 33
+[33,   100] loss: 0.04193 |  Acc: 70.969% (9084/12800)
+[33,   200] loss: 0.04189 |  Acc: 71.109% (9102/12800)
+[33,   300] loss: 0.04271 |  Acc: 70.328% (9002/12800)
+
+Epoch: 34
+[34,   100] loss: 0.04208 |  Acc: 70.695% (9049/12800)
+[34,   200] loss: 0.04218 |  Acc: 70.820% (9065/12800)
+[34,   300] loss: 0.04233 |  Acc: 70.641% (9042/12800)
+
+Epoch: 35
+[35,   100] loss: 0.04235 |  Acc: 70.633% (9041/12800)
+[35,   200] loss: 0.04253 |  Acc: 70.719% (9052/12800)
+[35,   300] loss: 0.04237 |  Acc: 70.422% (9014/12800)
+begin middle test:
+Accuracy of the network on the 10000 test images: 67 %
+
+Epoch: 36
+[36,   100] loss: 0.04203 |  Acc: 70.641% (9042/12800)
+[36,   200] loss: 0.04169 |  Acc: 71.070% (9097/12800)
+[36,   300] loss: 0.04229 |  Acc: 70.422% (9014/12800)
+
+Epoch: 37
+[37,   100] loss: 0.04194 |  Acc: 70.852% (9069/12800)
+[37,   200] loss: 0.04186 |  Acc: 70.961% (9083/12800)
+[37,   300] loss: 0.04225 |  Acc: 70.734% (9054/12800)
+
+Epoch: 38
+[38,   100] loss: 0.04177 |  Acc: 70.789% (9061/12800)
+[38,   200] loss: 0.04166 |  Acc: 70.906% (9076/12800)
+[38,   300] loss: 0.04249 |  Acc: 70.242% (8991/12800)
+
+Epoch: 39
+[39,   100] loss: 0.04213 |  Acc: 70.688% (9048/12800)
+[39,   200] loss: 0.04163 |  Acc: 71.031% (9092/12800)
+[39,   300] loss: 0.04199 |  Acc: 70.672% (9046/12800)
+
+Epoch: 40
+[40,   100] loss: 0.04199 |  Acc: 70.703% (9050/12800)
+[40,   200] loss: 0.04148 |  Acc: 71.219% (9116/12800)
+[40,   300] loss: 0.04200 |  Acc: 70.672% (9046/12800)
+begin middle test:
+Accuracy of the network on the 10000 test images: 66 %
+
+Epoch: 41
+[41,   100] loss: 0.04152 |  Acc: 71.266% (9122/12800)
+[41,   200] loss: 0.04162 |  Acc: 71.359% (9134/12800)
+[41,   300] loss: 0.04216 |  Acc: 70.578% (9034/12800)
+
+Epoch: 42
+[42,   100] loss: 0.04166 |  Acc: 71.320% (9129/12800)
+[42,   200] loss: 0.04158 |  Acc: 71.047% (9094/12800)
+[42,   300] loss: 0.04205 |  Acc: 70.836% (9067/12800)
+
+Epoch: 43
+[43,   100] loss: 0.04154 |  Acc: 71.148% (9107/12800)
+[43,   200] loss: 0.04164 |  Acc: 70.852% (9069/12800)
+[43,   300] loss: 0.04183 |  Acc: 70.805% (9063/12800)
+
+Epoch: 44
+[44,   100] loss: 0.04160 |  Acc: 71.086% (9099/12800)
+[44,   200] loss: 0.04134 |  Acc: 71.109% (9102/12800)
+[44,   300] loss: 0.04172 |  Acc: 71.070% (9097/12800)
+
+Epoch: 45
+[45,   100] loss: 0.04137 |  Acc: 71.633% (9169/12800)
+[45,   200] loss: 0.04101 |  Acc: 71.367% (9135/12800)
+[45,   300] loss: 0.04169 |  Acc: 70.922% (9078/12800)
+begin middle test:
+Accuracy of the network on the 10000 test images: 67 %
+
+Epoch: 46
+[46,   100] loss: 0.04127 |  Acc: 71.281% (9124/12800)
+[46,   200] loss: 0.04098 |  Acc: 71.594% (9164/12800)
+[46,   300] loss: 0.04141 |  Acc: 71.195% (9113/12800)
+
+Epoch: 47
+[47,   100] loss: 0.04141 |  Acc: 71.477% (9149/12800)
+[47,   200] loss: 0.04082 |  Acc: 71.594% (9164/12800)
+[47,   300] loss: 0.04145 |  Acc: 71.086% (9099/12800)
+
+Epoch: 48
+[48,   100] loss: 0.04158 |  Acc: 71.117% (9103/12800)
+[48,   200] loss: 0.04071 |  Acc: 71.523% (9155/12800)
+[48,   300] loss: 0.04135 |  Acc: 71.438% (9144/12800)
+
+Epoch: 49
+[49,   100] loss: 0.04141 |  Acc: 71.188% (9112/12800)
+[49,   200] loss: 0.04103 |  Acc: 71.430% (9143/12800)
+[49,   300] loss: 0.04136 |  Acc: 71.625% (9168/12800)
+
+Epoch: 50
+[50,   100] loss: 0.04114 |  Acc: 71.625% (9168/12800)
+[50,   200] loss: 0.04058 |  Acc: 71.875% (9200/12800)
+[50,   300] loss: 0.04147 |  Acc: 70.984% (9086/12800)
+begin middle test:
+Accuracy of the network on the 10000 test images: 67 %
+
+Epoch: 51
+[51,   100] loss: 0.04116 |  Acc: 71.367% (9135/12800)
+[51,   200] loss: 0.04076 |  Acc: 71.758% (9185/12800)
+[51,   300] loss: 0.04100 |  Acc: 71.516% (9154/12800)
+
+Epoch: 52
+[52,   100] loss: 0.04105 |  Acc: 71.562% (9160/12800)
+[52,   200] loss: 0.04103 |  Acc: 71.664% (9173/12800)
+[52,   300] loss: 0.04127 |  Acc: 71.195% (9113/12800)
+
+Epoch: 53
+[53,   100] loss: 0.04088 |  Acc: 71.492% (9151/12800)
+[53,   200] loss: 0.04090 |  Acc: 71.594% (9164/12800)
+[53,   300] loss: 0.04118 |  Acc: 71.062% (9096/12800)
+
+Epoch: 54
+[54,   100] loss: 0.04094 |  Acc: 71.398% (9139/12800)
+[54,   200] loss: 0.04078 |  Acc: 71.859% (9198/12800)
+[54,   300] loss: 0.04139 |  Acc: 71.133% (9105/12800)
+
+Epoch: 55
+[55,   100] loss: 0.04085 |  Acc: 71.656% (9172/12800)
+[55,   200] loss: 0.04062 |  Acc: 71.711% (9179/12800)
+[55,   300] loss: 0.04119 |  Acc: 71.219% (9116/12800)
+begin middle test:
+Accuracy of the network on the 10000 test images: 67 %
+
+Epoch: 56
+[56,   100] loss: 0.04074 |  Acc: 71.547% (9158/12800)
+[56,   200] loss: 0.04069 |  Acc: 71.633% (9169/12800)
+[56,   300] loss: 0.04125 |  Acc: 71.203% (9114/12800)
+
+Epoch: 57
+[57,   100] loss: 0.04071 |  Acc: 71.492% (9151/12800)
+[57,   200] loss: 0.04049 |  Acc: 71.797% (9190/12800)
+[57,   300] loss: 0.04091 |  Acc: 71.438% (9144/12800)
+
+Epoch: 58
+[58,   100] loss: 0.04068 |  Acc: 71.711% (9179/12800)
+[58,   200] loss: 0.04093 |  Acc: 71.344% (9132/12800)
+[58,   300] loss: 0.04130 |  Acc: 71.305% (9127/12800)
+
+Epoch: 59
+[59,   100] loss: 0.04056 |  Acc: 71.945% (9209/12800)
+[59,   200] loss: 0.04092 |  Acc: 71.695% (9177/12800)
+[59,   300] loss: 0.04102 |  Acc: 71.414% (9141/12800)
+
+Epoch: 60
+[60,   100] loss: 0.04068 |  Acc: 71.703% (9178/12800)
+[60,   200] loss: 0.04080 |  Acc: 71.688% (9176/12800)
+[60,   300] loss: 0.04106 |  Acc: 71.344% (9132/12800)
+begin middle test:
+Accuracy of the network on the 10000 test images: 67 %
+early exit is triggered
+Accuracy of the network on the 10000 test images: 66 %
+Accuracy of plane : 70 %
+Accuracy of   car : 82 %
+Accuracy of  bird : 53 %
+Accuracy of   cat : 56 %
+Accuracy of  deer : 57 %
+Accuracy of   dog : 61 %
+Accuracy of  frog : 73 %
+Accuracy of horse : 69 %
+Accuracy of  ship : 73 %
+Accuracy of truck : 75 %
+now testing the accuracy for mode exit1
+Accuracy of the network on the 10000 test images: 67 %
+Accuracy of plane : 70 %
+Accuracy of   car : 82 %
+Accuracy of  bird : 55 %
+Accuracy of   cat : 56 %
+Accuracy of  deer : 58 %
+Accuracy of   dog : 61 %
+Accuracy of  frog : 72 %
+Accuracy of horse : 70 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 75 %
+now testing the accuracy for mode exit1
+Accuracy of the network on the 10000 test images: 46 %
+Accuracy of plane :  5 %
+Accuracy of   car : 48 %
+Accuracy of  bird : 14 %
+Accuracy of   cat : 68 %
+Accuracy of  deer : 60 %
+Accuracy of   dog : 32 %
+Accuracy of  frog : 51 %
+Accuracy of horse : 19 %
+Accuracy of  ship : 95 %
+Accuracy of truck : 68 %
+now testing the accuracy for mode all
+Accuracy of the network on the 10000 test images: 80 %
+Accuracy of plane : 84 %
+Accuracy of   car : 90 %
+Accuracy of  bird : 76 %
+Accuracy of   cat : 63 %
+Accuracy of  deer : 73 %
+Accuracy of   dog : 71 %
+Accuracy of  frog : 84 %
+Accuracy of horse : 81 %
+Accuracy of  ship : 88 %
+Accuracy of truck : 90 %
