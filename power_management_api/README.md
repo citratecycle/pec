@@ -18,7 +18,7 @@ If the system enters sleep mode, `cron` job can no longer trace the power.
 
 ## Sleep Mode
 
-### `sleep_with_timer`
+### `sleep_with_timer(second: int) -> int`
 
 #### Purpose
 
@@ -26,7 +26,7 @@ When the board enters sleep mode, the CPU and GPU are totally shutdown, leading 
 
 #### Implementation
 
-The function will execute two shell commands, one for setting up the timer, and the other for entering sleep mode.
+The function sets up an RTC timer and call `systemctl` to suspend the system. It returns 0 on success.
 
 ## CPU Power Management
 
