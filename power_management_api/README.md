@@ -2,19 +2,20 @@
 
 ## Power Log
 
-### `start_power_log` and `stop_power_log`
+### `start_power_log(period: float, path: str) -> int` and `stop_power_log() -> int`
 
 #### Purpose
 
-Track the power consumption of the development board, including SoC, memory, and so on. Then, a log should be generated in real-time, so that the energy consumption in a certain time can be analyzed.
+Track the real-time power consumption of the SoC. Generate a log in real-time, so that the energy consumption in a certain time can be analyzed.
 
 #### Implementation
 
-The voltage and current through the power line `VDD_IN` can be read from a virtual fs. A possible implementation is: When `start_power_log` is called, it automatically setup a `cron` job, which runs at a frequency of 1Hz, and append log to a specified file. When `stop_power_log` is called, the `cron` job is stopped.
+The power goes through the power line `VDD_IN` can be read from a virtual fs. When `start_power_log` is called, it split a sub-process recording power in a certain period and append log to a specified file. When `stop_power_log` is called, the sub-process is stopped.
 
 #### Possible Problem
 
-If the system enters sleep mode, `cron` job can no longer trace the power.
+1. If the system enters sleep mode, it can no longer trace the power.
+2. If the recording frequency is too high, it consumes much CPU resource.
 
 ## Sleep Mode
 
