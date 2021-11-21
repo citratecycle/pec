@@ -2,6 +2,7 @@ import os
 import time
 from multiprocessing import Process, Value
 import subprocess
+from typing import List, Dict
 
 _local_dict = {}
 
@@ -90,3 +91,70 @@ def sleep_with_timer(second: int) -> int:
     if sleep != 0:
         return -1
     return 0
+
+
+def get_cpu_info(cpu_idx=None, cpu_type=True, cpu_online=True, min_freq=True, max_freq=True, cur_freq=True,
+                 available_freq=True) -> List[Dict]:
+    """
+    With no arguments, this function reads a series of virtual files
+    and return a complete list of all possible info. If it receives arguments,
+    it will only return corresponding values.
+    CPU index other than 0 to 5 will be ignored.
+
+    :param List[int] cpu_idx: Index of CPUs whose info is needed
+    :param bool cpu_type: Return cpu_type or not
+    :param bool cpu_online: Return cpu_online or not
+    :param bool min_freq: Return min_freq or not
+    :param bool max_freq: Return max_freq or not
+    :param bool cur_freq: Return cur_freq or not
+    :param bool available_freq: Return available_freq ot not
+    :return: A list of dictionaries where cpu information is stored
+    """
+    available_idx = (0, 1, 2, 3, 4, 5)
+    cpu_path = "/sys/devices/system/cpu/cpu{0}"
+
+    if cpu_idx is None:
+        cpu_idx = [0, 1, 2, 3, 4, 5]
+    result = []
+    for i in cpu_idx:
+        if i not in available_idx:
+            continue
+        cpu_info = {"cpu_idx": i}
+        if cpu_type:
+            cpu_info["cpu_type"] = "Denver" if i == 1 or i == 2 else "A57"
+        if cpu_online:
+            f = open(cpu_path.format(i) + "/online", "r")
+            content = f.read()
+            f.close()
+            cpu_info["cpu_online"] = True if content.rstrip() == "1" else False
+        if min_freq:
+            f = open(cpu_path.format(i) + "/cpufreq/cpuinfo_min_freq", "r")
+            content = f.read()
+            f.close()
+            cpu_info["min_freq"] = int(content.rstrip())
+        if max_freq:
+            f = open(cpu_path.format(i) + "/cpufreq/cpuinfo_max_freq", "r")
+            content = f.read()
+            f.close()
+            cpu_info["max_freq"] = int(content.rstrip())
+        if cur_freq:
+            f = open(cpu_path.format(i) + "/cpufreq/cpuinfo_cur_freq", "r")
+            content = f.read()
+            f.close()
+            if content.rstrip() == "<unknown>":
+                cpu_info["cur_freq"] = 0
+            else:
+                cpu_info["cur_freq"] = int(content.rstrip())
+        if available_freq:
+            online_f = open(cpu_path.format(i) + "/online", "r")
+            online_content = online_f.read()
+            online_f.close()
+            if online_content.rstrip() != "1":
+                cpu_info["available_freq"] = []
+            else:
+                f = open(cpu_path.format(i) + "/cpufreq/scaling_available_frequencies", "r")
+                content = f.read()
+                f.close()
+                cpu_info["available_freq"] = [int(val) for val in content.rstrip().split()]
+        result.append(cpu_info)
+    return result

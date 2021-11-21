@@ -31,7 +31,25 @@ The function sets up an RTC timer and call `systemctl` to suspend the system. It
 
 ## CPU Power Management
 
-### `get_CPU_info`
+### `cpu_info` Dictionary
+
+CPU-related information returned by `get_cpu_info` is a list of dictionary. In each dictionary, there are following fields:
+
+```json
+{
+  "cpu_idx": 0,
+  "cpu_type": "A57",
+  "cpu_online": true,
+  "min_freq": 345600,
+  "max_freq": 2035200,
+  "cur_freq": 345000,
+  "available_freq": [345600, 499200, 652800, 806400, 960000, 1113600, 1267200, 1420800, 1574400, 1728000, 1881600, 2035200]
+}
+```
+
+There are two types of CPU, "A57" and "Denver". It's possible that CPU current frequency is different from available ones, because the available frequencies are used for scaling. If a CPU is not online, then current frequency will be zero and the available frequencies will be an empty list.
+
+### `get_cpu_info(cpu_idx=None, cpu_type=True, cpu_online=True, min_freq=True, max_freq=True, cur_freq=True, available_freq=True) -> List[Dict]`
 
 #### Purpose
 
@@ -39,7 +57,7 @@ The SoC has 2 Denver cores and 4 A57 cores. Before modify CPU parameters, user s
 
 #### Implementation
 
-If no argument is given, this function will return a list of structure that contains all the CPU info, including CPU number, current frequency, minimum frequency, maximum frequency, possible minimum frequency, possible maximum frequency, current power state, possible power states, and so on. If arguments are specified, the function will only return corresponding information. All the information is get by reading the virtual fs.
+With no arguments, this function reads a series of virtual files and return a complete list of all possible info as show in the dictionary above. If it receives arguments, it will only return corresponding values. CPU index other than 0 to 5 will be ignored.
 
 ### `set_CPU_state` 
 
