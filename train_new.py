@@ -36,8 +36,11 @@ def train_normal( args ):
     train the model without any early-exit mechanisms, i.e. the most traditional scheme
     '''
     # training setup
-    exec( 'hyper=gp.'+args.model_name+'_original_train_hyper' )
+    hyper = gp.get_hyper( args )
     model = get_train_model( args ).to( args.device )
+    a = 1
+    print(a)
+    print( hyper )
     optimizer = gp.get_optimizer( params=model.parameters(), lr=hyper.learning_rate, op_type=args.optimizer )
     train_loader = gp.get_dataloader( args, task='train' )
     # begin training
@@ -64,6 +67,9 @@ def train_normal( args ):
             total += labels.size( 0 )
             correct += predicted.eq( labels ).sum().item()
             if batch_idx % 100 == 99:    # print every 100 mini-batches
+                # for debug
+                print( f'outputs = {outputs.sum()}' )
+                # end debug
                 print('[%d, %5d] loss: %.5f |  Acc: %.3f%% (%d/%d)' %
                     (epoch_idx + 1, batch_idx + 1, train_loss / 2000, 100.*correct/total, correct, total))
                 train_loss, total, correct = 0.0, 0, 0
@@ -125,7 +131,7 @@ def train_original( args ):
     train the model with early-exit structures but only train the original part
     '''
     # training setup
-    exec( 'hyper=gp.'+args.model_name+'_original_train_hyper' )
+    hyper = gp.get_hyper( args )
     model = get_train_model( args )
     model = model.to( args.device )
     model.set_exit_layer( 'original' )
@@ -175,7 +181,7 @@ def train_exits( args ):
     train the early-exits part with the original parts fixed
     '''
     # training setup
-    exec( 'hyper=gp.'+args.model_name+'_exits_train_hyper' )
+    hyper = gp.get_hyper( args )
     model = torch.load( args.pretrained_file )
     model = model.to( args.device )
     model.set_exit_layer( 'exits' )
@@ -183,35 +189,41 @@ def train_exits( args ):
     train_loader = gp.get_dataloader( args, task='train' )
     # fix the original parameters
     for name, parameter in model.named_parameters():
-        if name in gp.cifar_normal_layer_names:
+        if name in gp.get_layer_names( args ):
             parameter.requires_grad = False
     # begin training
     model.train()
     for epoch_idx in range( hyper.epoch_num ):
         print(f'\nEpoch: {(epoch_idx + 1)}')
         train_loss = 0
-        correct_exit1, correct_exit3 = 0, 0
+        correct_exit = None
         total = 0
         for batch_idx, ( images, labels ) in enumerate( train_loader ):
             images, labels = images.to( args.device ), labels.to( args.device )
             optimizer.zero_grad()
-            exit1, exit3 = model( images )
-            loss =  gp.criterion( exit1, labels ) + \
-                    gp.criterion( exit3, labels )
+            exit_tuple = model( images )
+            loss = 0
+            for exit_idx in range( len( exit_tuple ) ):
+                loss += gp.criterion( exit_tuple[exit_idx], labels )
             loss.backward()
             optimizer.step()
             train_loss += loss.item()
-            _, exit1_predicted = exit1.max( 1 )
-            _, exit3_predicted = exit3.max( 1 )
+            exit_predicted_list = [None for i in range( len( exit_tuple ) )]
+            for exit_idx in range( len( exit_tuple ) ):
+                _, exit_predicted_list[exit_idx] = exit_tuple[exit_idx].max( 1 )
             total += labels.size( 0 )
-            correct_exit1 += exit1_predicted.eq( labels ).sum().item()
-            correct_exit3 += exit3_predicted.eq( labels ).sum().item()
+            if correct_exit is None:
+                correct_exit = [0 for i in range( len( exit_tuple ) )]
+            for exit_idx in range( len( exit_tuple ) ):
+                correct_exit[exit_idx] += exit_predicted_list[exit_idx].eq( labels ).sum().item()
             if batch_idx % 100 == 99:    # print every 100 mini-batches
-                print('[%d, %5d] loss: %.5f ||  Acc: exit1: %.3f%% (%d/%d) | exit3: %.3f%% (%d/%d)' %
-                    (epoch_idx + 1, batch_idx + 1, train_loss / 2000, \
-                    100.*correct_exit1/total, correct_exit1, total, \
-                    100.*correct_exit3/total, correct_exit3, total))
-                train_loss, total, correct_exit1, correct_exit3 = 0.0, 0, 0, 0
+                print( '[%d, %5d] loss: %.5f |' % (epoch_idx + 1, batch_idx + 1, train_loss / 2000), end='' )
+                for exit_idx in range( len( exit_tuple ) ):
+                    print( '| exit'+str(exit_idx)+': %.3f%% (%d/%d)' % (100.*correct_exit[exit_idx]/total, correct_exit[exit_idx], total), end='' )
+                print( '' )
+                model.print_average_activations()
+                train_loss, total = 0, 0
+                correct_exit = None
         if epoch_idx % 5 == 4:
             print( f'begin middle test:' )
             test_exits( model, args )
