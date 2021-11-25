@@ -128,12 +128,12 @@ def get_cpu_info(cpu_idx=None, cpu_type=True, cpu_online=True, min_freq=True, ma
             f.close()
             cpu_info["cpu_online"] = True if content.rstrip() == "1" else False
         if min_freq:
-            f = open(cpu_path.format(i) + "/cpufreq/cpuinfo_min_freq", "r")
+            f = open(cpu_path.format(i) + "/cpufreq/scaling_min_freq", "r")
             content = f.read()
             f.close()
             cpu_info["min_freq"] = int(content.rstrip())
         if max_freq:
-            f = open(cpu_path.format(i) + "/cpufreq/cpuinfo_max_freq", "r")
+            f = open(cpu_path.format(i) + "/cpufreq/scaling_max_freq", "r")
             content = f.read()
             f.close()
             cpu_info["max_freq"] = int(content.rstrip())
