@@ -89,7 +89,7 @@ def sleep_with_timer(second: int) -> int:
     timer.close()
     sleep = subprocess.call(["systemctl", "suspend"])
     if sleep != 0:
-        return -1
+        return sleep
     return 0
 
 
@@ -158,3 +158,115 @@ def get_cpu_info(cpu_idx=None, cpu_type=True, cpu_online=True, min_freq=True, ma
                 cpu_info["available_freq"] = [int(val) for val in content.rstrip().split()]
         result.append(cpu_info)
     return result
+
+
+def set_cpu_state(cpu_targets: List[Dict]) -> int:
+    """
+    This function takes in a list of dict and sets the cpu parameters accordingly.
+    For each dict, "cpu_idx" is a necessary field and the possible three options are
+    "cpu_online", "min_freq", and "max_freq".
+
+    If the "cpu_online" field is False, or "cpu_online" is not specified and cpu is offline,
+    the frequency fields will be ignored.
+
+    There are many possible errors and here's a list error code:
+
+    - -1: "cpu_idx" field is missing.
+    - -2: The last online cpu is being offline.
+    - -3: The specified minimum frequency is not in available frequency list.
+    - -4: The specified maximum frequency is not in available frequency list.
+    - -5: Only minimum frequency is specified, and it is greater than current maximum frequency.
+    - -6: Only maximum frequency is specified, and it is smaller than current minimum frequency.
+    - -7: The specified maximum frequency is smaller than the specified minimum frequency.
+
+    If multiple dicts in the list have errors, the error code will be concatenated together.
+    For example, if the first dict doesn't specify "cpu_idx", and the third dict gives a
+    wrong minimum frequency, the return value will be -103. If only the third dict gives a
+    wrong minimum frequency, the return value will be -3.
+
+    :param List[Dict] cpu_targets: A list of dicts which contain cpu parameters.
+    :return: Refer to detailed doc.
+    """
+    cpu_path = "/sys/devices/system/cpu/cpu{0}"
+    error_code = 0
+
+    cpu_info = get_cpu_info()
+    cpu_info_dict = dict()
+    for info in cpu_info:
+        cpu_info_dict[info["cpu_idx"]] = info
+    for cpu_target in cpu_targets:
+        idx_flag = "cpu_idx" in cpu_target
+        online_flag = "cpu_online" in cpu_target
+        min_flag = "min_freq" in cpu_target
+        max_flag = "max_freq" in cpu_target
+        if not idx_flag:
+            error_code *= 10
+            error_code += 1
+            continue
+        if online_flag and not cpu_target["cpu_online"]:
+            if not cpu_info_dict[cpu_target["cpu_idx"]]["cpu_online"]:
+                continue
+            if len([cpu for cpu in cpu_info if cpu["cpu_online"]]) == 1:
+                error_code *= 10
+                error_code += 2
+                continue
+            f = open(cpu_path.format(cpu_target["cpu_idx"]) + "/online", "w")
+            f.write("0\n")
+            f.close()
+            cpu_info_dict[cpu_target["cpu_idx"]]["cpu_online"] = False
+            continue
+        if online_flag and cpu_target["cpu_online"] and not cpu_info_dict[cpu_target["cpu_idx"]]["cpu_online"]:
+            f = open(cpu_path.format(cpu_target["cpu_idx"]) + "/online", "w")
+            f.write("1\n")
+            f.close()
+        if not online_flag and not cpu_info_dict[cpu_target["cpu_idx"]]["cpu_online"]:
+            continue
+        if len(cpu_info_dict[cpu_target["cpu_idx"]]["available_freq"]) == 0:
+            cpu_info_dict[cpu_target["cpu_idx"]] = get_cpu_info([cpu_target["cpu_idx"]])[0]
+        if min_flag and cpu_target["min_freq"] not in cpu_info_dict[cpu_target["cpu_idx"]]["available_freq"]:
+            error_code *= 10
+            error_code += 3
+            continue
+        if max_flag and cpu_target["max_freq"] not in cpu_info_dict[cpu_target["cpu_idx"]]["available_freq"]:
+            error_code *= 10
+            error_code += 4
+            continue
+        if min_flag and not max_flag and cpu_target["min_freq"] > cpu_info_dict[cpu_target["cpu_idx"]]["max_freq"]:
+            error_code *= 10
+            error_code += 5
+            continue
+        if max_flag and not min_flag and cpu_target["max_freq"] < cpu_info_dict[cpu_target["cpu_idx"]]["min_freq"]:
+            error_code *= 10
+            error_code += 6
+            continue
+        if min_flag and max_flag and cpu_target["min_freq"] > cpu_target["max_freq"]:
+            error_code *= 10
+            error_code += 7
+            continue
+        if min_flag and not max_flag:
+            f = open(cpu_path.format(cpu_target["cpu_idx"]) + "/cpufreq/scaling_min_freq", "w")
+            f.write(str(cpu_target["min_freq"]))
+            f.close()
+        if max_flag and not min_flag:
+            f = open(cpu_path.format(cpu_target["cpu_idx"]) + "/cpufreq/scaling_max_freq", "w")
+            f.write(str(cpu_target["max_freq"]))
+            f.close()
+        if min_flag and max_flag:
+            if cpu_target["min_freq"] > cpu_info_dict[cpu_target["cpu_idx"]]["max_freq"]:
+                f_max = open(cpu_path.format(cpu_target["cpu_idx"]) + "/cpufreq/scaling_max_freq", "w")
+                f_max.write(str(cpu_target["max_freq"]))
+                f_max.close()
+                f_min = open(cpu_path.format(cpu_target["cpu_idx"]) + "/cpufreq/scaling_min_freq", "w")
+                f_min.write(str(cpu_target["min_freq"]))
+                f_min.close()
+            else:
+                f_min = open(cpu_path.format(cpu_target["cpu_idx"]) + "/cpufreq/scaling_min_freq", "w")
+                f_min.write(str(cpu_target["min_freq"]))
+                f_min.close()
+                f_max = open(cpu_path.format(cpu_target["cpu_idx"]) + "/cpufreq/scaling_max_freq", "w")
+                f_max.write(str(cpu_target["max_freq"]))
+                f_max.close()
+        error_code *= 10
+    if error_code == 0:
+        return 0
+    return -error_code

@@ -59,25 +59,29 @@ The SoC has 2 Denver cores and 4 A57 cores. Before modify CPU parameters, user s
 
 With no arguments, this function reads a series of virtual files and return a complete list of all possible info as show in the dictionary above. If it receives arguments, it will only return corresponding values. CPU index other than 0 to 5 will be ignored.
 
-### `set_CPU_state` 
+### `set_cpu_state(cpu_targets: List[Dict]) -> int` 
 
 #### Purpose
 
-Change the CPU power state, including sleep state.
+Change the CPU power state and frequencies.
 
 #### Implementation
 
-The core number and target power state should be specified. If power state is not allowed, it will report an error. The action is finished by writing to the virtual fs.
+This function takes in a list of dict and sets the cpu parameters accordingly. For each dict, "cpu_idx" is a necessary field, and the possible three options are "cpu_online", "min_freq", and "max_freq".
 
-### `set_CPU_min_freq` and `set_CPU_max_freq`
+If the "cpu_online" field is False, or "cpu_online" is not specified and cpu is offline, the frequency fields will be ignored.
 
-#### Purpose
+There are many possible errors and here's a list error code:
 
-Control the CPU frequency.
-
-#### Implementation
-
-The core number and target frequency should be specified. If frequency is not allowed, it will report an error. The action is finished by writing to the virtual fs.
+* -1: "cpu_idx" field is missing. 
+* -2: The last online cpu is being offline.
+* -3: The specified minimum frequency is not in available frequency list.
+* -4: The specified maximum frequency is not in available frequency list.
+* -5: Only minimum frequency is specified, and it is greater than current maximum frequency.
+* -6: Only maximum frequency is specified, and it is smaller than current minimum frequency.
+* -7: The specified maximum frequency is smaller than the specified minimum frequency.
+  
+If multiple dicts in the list have errors, the error code will be concatenated together. For example, if the first dict doesn't specify "cpu_idx", and the third dict gives a wrong minimum frequency, the return value will be -103. If only the third dict gives a wrong minimum frequency, the return value will be -3.
 
 ## GPU Power Management
 
