@@ -292,3 +292,53 @@ def set_cpu_state(cpu_targets: List[Dict]) -> int:
     if error_code == 0:
         return 0
     return -error_code
+
+
+def get_gpu_info(min_freq=True, max_freq=True, cur_freq=True, available_freq=True, cur_gov=True,
+                 available_gov=True) -> Dict:
+    """
+    With no arguments, this function reads a series of virtual files
+    and return all possible info. If it receives arguments, it will only
+    return corresponding values.
+
+    :param bool min_freq: Return minimum frequency or not.
+    :param bool max_freq: Return maximum frequency or not.
+    :param bool cur_freq: Return current frequency or not.
+    :param bool available_freq: Return available frequencies or not.
+    :param bool cur_gov: Return current governor or not.
+    :param bool available_gov: Return available governors or not.
+    :return: A dictionary where gpu information is stored.
+    """
+    gpu_path = "/sys/devices/gpu.0/devfreq/17000000.gp10b"
+    gpu_info = {}
+    if min_freq:
+        f = open(gpu_path + "/min_freq", "r")
+        content = f.read()
+        f.close()
+        gpu_info["min_freq"] = int(content.rstrip())
+    if max_freq:
+        f = open(gpu_path + "/max_freq", "r")
+        content = f.read()
+        f.close()
+        gpu_info["max_freq"] = int(content.rstrip())
+    if cur_freq:
+        f = open(gpu_path + "/cur_freq", "r")
+        content = f.read()
+        f.close()
+        gpu_info["cur_freq"] = int(content.rstrip())
+    if available_freq:
+        f = open(gpu_path + "/available_frequencies", "r")
+        content = f.read()
+        f.close()
+        gpu_info["available_freq"] = [int(val) for val in content.rstrip().split()]
+    if cur_gov:
+        f = open(gpu_path + "/governor", "r")
+        content = f.read()
+        f.close()
+        gpu_info["cur_gov"] = content.rstrip()
+    if available_gov:
+        f = open(gpu_path + "/available_governors", "r")
+        content = f.read()
+        f.close()
+        gpu_info["available_gov"] = content.rstrip().split()
+    return gpu_info
