@@ -43,13 +43,15 @@ CPU-related information returned by `get_cpu_info` is a list of dictionary. In e
   "min_freq": 345600,
   "max_freq": 2035200,
   "cur_freq": 345000,
-  "available_freq": [345600, 499200, 652800, 806400, 960000, 1113600, 1267200, 1420800, 1574400, 1728000, 1881600, 2035200]
+  "available_freq": [345600, 499200, 652800, 806400, 960000, 1113600, 1267200, 1420800, 1574400, 1728000, 1881600, 2035200],
+  "cur_gov": "schedutil", 
+  "available_gov": ["interactive", "conservative", "ondemand", "userspace", "powersave", "performance", "schedutil"]
 }
 ```
 
 There are two types of CPU, "A57" and "Denver". It's possible that CPU current frequency is different from available ones, because the available frequencies are used for scaling. If a CPU is not online, then current frequency will be zero and the available frequencies will be an empty list.
 
-### `get_cpu_info(cpu_idx=None, cpu_type=True, cpu_online=True, min_freq=True, max_freq=True, cur_freq=True, available_freq=True) -> List[Dict]`
+### `get_cpu_info(cpu_idx=None, cpu_type=True, cpu_online=True, min_freq=True, max_freq=True, cur_freq=True, available_freq=True, cur_gov=True, available_gov=True) -> List[Dict]`
 
 #### Purpose
 
@@ -58,6 +60,20 @@ The SoC has 2 Denver cores and 4 A57 cores. Before modify CPU parameters, user s
 #### Implementation
 
 With no arguments, this function reads a series of virtual files and return a complete list of all possible info as show in the dictionary above. If it receives arguments, it will only return corresponding values. CPU index other than 0 to 5 will be ignored.
+
+### `cpu_state` Dictionary
+
+CPU-related parameters taken in by `set_cpu_state` is a list pf dictionary. In each dictionary, there can be following fields:
+
+```json
+{
+  "cpu_idx": 0,
+  "cpu_online": true,
+  "min_freq": 345600,
+  "max_freq": 2035200,
+  "governor": "schdeutil"
+}
+```
 
 ### `set_cpu_state(cpu_targets: List[Dict]) -> int` 
 
@@ -69,7 +85,7 @@ Change the CPU power state and frequencies.
 
 This function takes in a list of dict and sets the cpu parameters accordingly. For each dict, "cpu_idx" is a necessary field, and the possible three options are "cpu_online", "min_freq", and "max_freq".
 
-If the "cpu_online" field is False, or "cpu_online" is not specified and cpu is offline, the frequency fields will be ignored.
+If the "cpu_online" field is False, or "cpu_online" is not specified and cpu is offline, the frequency fields and governor field will be ignored.
 
 There are many possible errors and here's a list error code:
 
@@ -80,7 +96,8 @@ There are many possible errors and here's a list error code:
 * -5: Only minimum frequency is specified, and it is greater than current maximum frequency.
 * -6: Only maximum frequency is specified, and it is smaller than current minimum frequency.
 * -7: The specified maximum frequency is smaller than the specified minimum frequency.
-  
+* -8: The specified governor is not in available governor list.
+
 If multiple dicts in the list have errors, the error code will be concatenated together. For example, if the first dict doesn't specify "cpu_idx", and the third dict gives a wrong minimum frequency, the return value will be -103. If only the third dict gives a wrong minimum frequency, the return value will be -3.
 
 ## GPU Power Management

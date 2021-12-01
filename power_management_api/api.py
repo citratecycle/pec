@@ -94,7 +94,7 @@ def sleep_with_timer(second: int) -> int:
 
 
 def get_cpu_info(cpu_idx=None, cpu_type=True, cpu_online=True, min_freq=True, max_freq=True, cur_freq=True,
-                 available_freq=True) -> List[Dict]:
+                 available_freq=True, cur_gov=True, available_gov=True) -> List[Dict]:
     """
     With no arguments, this function reads a series of virtual files
     and return a complete list of all possible info. If it receives arguments,
@@ -102,12 +102,14 @@ def get_cpu_info(cpu_idx=None, cpu_type=True, cpu_online=True, min_freq=True, ma
     CPU index other than 0 to 5 will be ignored.
 
     :param List[int] cpu_idx: Index of CPUs whose info is needed
-    :param bool cpu_type: Return cpu_type or not
-    :param bool cpu_online: Return cpu_online or not
-    :param bool min_freq: Return min_freq or not
-    :param bool max_freq: Return max_freq or not
-    :param bool cur_freq: Return cur_freq or not
-    :param bool available_freq: Return available_freq ot not
+    :param bool cpu_type: Return cpu type or not
+    :param bool cpu_online: Return cpu online state or not
+    :param bool min_freq: Return minimum frequency or not
+    :param bool max_freq: Return maximum frequency or not
+    :param bool cur_freq: Return current frequency or not
+    :param bool available_freq: Return available frequencies or not
+    :param bool cur_gov: Return current governor or not
+    :param bool available_gov: Return available governors or not
     :return: A list of dictionaries where cpu information is stored
     """
     available_idx = (0, 1, 2, 3, 4, 5)
@@ -156,6 +158,16 @@ def get_cpu_info(cpu_idx=None, cpu_type=True, cpu_online=True, min_freq=True, ma
                 content = f.read()
                 f.close()
                 cpu_info["available_freq"] = [int(val) for val in content.rstrip().split()]
+        if cur_gov:
+            f = open(cpu_path.format(i) + "/cpufreq/scaling_governor", "r")
+            content = f.read()
+            f.close()
+            cpu_info["cur_gov"] = content.rstrip()
+        if available_gov:
+            f = open(cpu_path.format(i) + "/cpufreq/scaling_available_governors", "r")
+            content = f.read()
+            f.close()
+            cpu_info["available_gov"] = content.rstrip().split()
         result.append(cpu_info)
     return result
 
@@ -163,11 +175,11 @@ def get_cpu_info(cpu_idx=None, cpu_type=True, cpu_online=True, min_freq=True, ma
 def set_cpu_state(cpu_targets: List[Dict]) -> int:
     """
     This function takes in a list of dict and sets the cpu parameters accordingly.
-    For each dict, "cpu_idx" is a necessary field and the possible three options are
-    "cpu_online", "min_freq", and "max_freq".
+    For each dict, "cpu_idx" is a necessary field and the possible four options are
+    "cpu_online", "min_freq", "max_freq", and "governor".
 
     If the "cpu_online" field is False, or "cpu_online" is not specified and cpu is offline,
-    the frequency fields will be ignored.
+    the frequency fields and governor field will be ignored.
 
     There are many possible errors and here's a list error code:
 
@@ -178,6 +190,7 @@ def set_cpu_state(cpu_targets: List[Dict]) -> int:
     - -5: Only minimum frequency is specified, and it is greater than current maximum frequency.
     - -6: Only maximum frequency is specified, and it is smaller than current minimum frequency.
     - -7: The specified maximum frequency is smaller than the specified minimum frequency.
+    - -8: The specified governor is not in available governor list.
 
     If multiple dicts in the list have errors, the error code will be concatenated together.
     For example, if the first dict doesn't specify "cpu_idx", and the third dict gives a
@@ -199,6 +212,7 @@ def set_cpu_state(cpu_targets: List[Dict]) -> int:
         online_flag = "cpu_online" in cpu_target
         min_flag = "min_freq" in cpu_target
         max_flag = "max_freq" in cpu_target
+        gov_flag = "governor" in cpu_target
         if not idx_flag:
             error_code *= 10
             error_code += 1
@@ -266,6 +280,14 @@ def set_cpu_state(cpu_targets: List[Dict]) -> int:
                 f_max = open(cpu_path.format(cpu_target["cpu_idx"]) + "/cpufreq/scaling_max_freq", "w")
                 f_max.write(str(cpu_target["max_freq"]))
                 f_max.close()
+        if gov_flag:
+            if cpu_target["governor"] not in cpu_info_dict[cpu_target["cpu_idx"]]["available_gov"]:
+                error_code *= 10
+                error_code += 8
+                continue
+            f = open(cpu_path.format(cpu_target["cpu_idx"]) + "/cpufreq/scaling_governor", "w")
+            f.write(str(cpu_target["governor"]))
+            f.close()
         error_code *= 10
     if error_code == 0:
         return 0
