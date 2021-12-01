@@ -61,9 +61,9 @@ The SoC has 2 Denver cores and 4 A57 cores. Before modify CPU parameters, user s
 
 With no arguments, this function reads a series of virtual files and return a complete list of all possible info as show in the dictionary above. If it receives arguments, it will only return corresponding values. CPU index other than 0 to 5 will be ignored.
 
-### `cpu_state` Dictionary
+### `cpu_target` Dictionary
 
-CPU-related parameters taken in by `set_cpu_state` is a list pf dictionaries. In each dictionary, there can be following fields:
+CPU-related parameters taken in by `set_cpu_state` is a list of dictionaries. In each dictionary, there can be following fields:
 
 ```json
 {
@@ -79,7 +79,7 @@ CPU-related parameters taken in by `set_cpu_state` is a list pf dictionaries. In
 
 #### Purpose
 
-Change the CPU power state and frequencies.
+Change CPU power state, frequencies, and governor.
 
 #### Implementation
 
@@ -127,16 +127,39 @@ Before modify GPU parameters, user should know the current information of GPUs.
 
 With no arguments, this function reads a series of virtual files and return all possible info. If it receives arguments, it will only return corresponding values.
 
-### `set_GPU_min_freq` and `set_GPU_max_freq`
+### `gpu_target` Dictionary
+
+GPU-related parameters taken in by `set_gpu_state` is a dictionary. In the dictionary, there can be following fields:
+
+```json
+{
+  "min_freq": 114750000,
+  "max_freq": 1122000000,
+  "governor": "nvhost_podgov"
+}
+```
+
+### `set_gpu_state(gpu_target: Dict) -> int`
 
 #### Purpose
 
-Control the GPU frequency.
+Change GPU frequencies and governor.
 
 #### Implementation
 
-The target frequency should be specified. If frequency is not allowed, it will report an error. The action is finished by writing to the virtual fs.
+**Note: Governor cannot be set currently. There may be some errors, and the code is commented.**
+
+This function takes in a dict and sets the gpu parameters accordingly. The possible three options are "min_freq", "max_freq", and "governor".
+
+There are many possible errors and here's a list error code:
+
+* -1: The specified minimum frequency is not in available frequency list.
+* -2: The specified maximum frequency is not in available frequency list.
+* -3: Only minimum frequency is specified, and it is greater than current maximum frequency.
+* -4: Only maximum frequency is specified, and it is smaller than current minimum frequency.
+* -5: The specified maximum frequency is smaller than the specified minimum frequency.
+* -6: The specified governor is not in available governor list.
 
 ## Peripheral Power Management
 
-This part is more tricky and may be not easy to manage. It should also consume less power than the CPU and GPU. I will work on this after finishing previous parts.
+This part is more tricky and may be not easy to manage. It should also consume less power than the CPU and GPU. We may implement this part when we are available.
