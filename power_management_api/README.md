@@ -33,7 +33,7 @@ The function sets up an RTC timer and call `systemctl` to suspend the system. It
 
 ### `cpu_info` Dictionary
 
-CPU-related information returned by `get_cpu_info` is a list of dictionary. In each dictionary, there are following fields:
+CPU-related information returned by `get_cpu_info` is a list of dictionaries. In each dictionary, there are following fields:
 
 ```json
 {
@@ -63,7 +63,7 @@ With no arguments, this function reads a series of virtual files and return a co
 
 ### `cpu_state` Dictionary
 
-CPU-related parameters taken in by `set_cpu_state` is a list pf dictionary. In each dictionary, there can be following fields:
+CPU-related parameters taken in by `set_cpu_state` is a list pf dictionaries. In each dictionary, there can be following fields:
 
 ```json
 {
@@ -102,7 +102,22 @@ If multiple dicts in the list have errors, the error code will be concatenated t
 
 ## GPU Power Management
 
-### `get_GPU_info`
+### `gpu_info` Dictionary
+
+GPU-related information returned by `get_gpu_info` is a dictionary. In the dictionary, there are following fields:
+
+```json
+{
+  "min_freq": 114750000,
+  "max_freq": 1122000000,
+  "cur_freq": 114750000,
+  "available_freq": [114750000, 216750000, 318750000, 420750000, 522750000, 624750000, 726750000, 854250000, 930750000, 1032750000, 1122000000, 1236750000, 1300500000],
+  "cur_gov": "nvhost_podgov",
+  "available_gov": ["wmark_active", "wmark_simple", "nvhost_podgov", "userspace", "performance", "simple_ondemand"]
+}
+```
+
+### `get_gpu_info(min_freq=True, max_freq=True, cur_freq=True, available_freq=True, cur_gov=True, available_gov=True) -> Dict`
 
 #### Purpose
 
@@ -110,7 +125,7 @@ Before modify GPU parameters, user should know the current information of GPUs.
 
 #### Implementation
 
-If no argument is given, this function will return a structure that contains all the GPU info, including current frequency, minimum frequency, maximum frequency, possible frequencies and so on. If arguments are specified, the function will only return corresponding information. All the information is get by reading the virtual fs.
+With no arguments, this function reads a series of virtual files and return all possible info. If it receives arguments, it will only return corresponding values.
 
 ### `set_GPU_min_freq` and `set_GPU_max_freq`
 
