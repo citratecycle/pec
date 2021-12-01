@@ -1,4 +1,3 @@
-import os
 import time
 from multiprocessing import Process, Value
 import subprocess
@@ -174,7 +173,7 @@ def get_cpu_info(cpu_idx=None, cpu_type=True, cpu_online=True, min_freq=True, ma
 
 def set_cpu_state(cpu_targets: List[Dict]) -> int:
     """
-    This function takes in a list of dict and sets the cpu parameters accordingly.
+    This function takes in a list of dicts and sets the cpu parameters accordingly.
     For each dict, "cpu_idx" is a necessary field and the possible four options are
     "cpu_online", "min_freq", "max_freq", and "governor".
 
@@ -286,7 +285,7 @@ def set_cpu_state(cpu_targets: List[Dict]) -> int:
                 error_code += 8
                 continue
             f = open(cpu_path.format(cpu_target["cpu_idx"]) + "/cpufreq/scaling_governor", "w")
-            f.write(str(cpu_target["governor"]))
+            f.write(cpu_target["governor"])
             f.close()
         error_code *= 10
     if error_code == 0:
@@ -342,3 +341,70 @@ def get_gpu_info(min_freq=True, max_freq=True, cur_freq=True, available_freq=Tru
         f.close()
         gpu_info["available_gov"] = content.rstrip().split()
     return gpu_info
+
+
+def set_gpu_state(gpu_target: Dict) -> int:
+    """
+    **Note: Governor cannot be set currently. There may be some errors, and the code is commented.**
+
+    This function takes in a dict and sets the gpu parameters accordingly.
+    The possible three options are "min_freq", "max_freq", and "governor".
+
+    There are many possible errors and here's a list error code:
+
+    - -1: The specified minimum frequency is not in available frequency list.
+    - -2: The specified maximum frequency is not in available frequency list.
+    - -3: Only minimum frequency is specified, and it is greater than current maximum frequency.
+    - -4: Only maximum frequency is specified, and it is smaller than current minimum frequency.
+    - -5: The specified maximum frequency is smaller than the specified minimum frequency.
+    - -6: The specified governor is not in available governor list.
+
+    :param Dict gpu_target: A dict which contains gpu parameters.
+    :return: Refer to detailed doc.
+    """
+    gpu_path = "/sys/devices/gpu.0/devfreq/17000000.gp10b"
+
+    gpu_info = get_gpu_info()
+    min_flag = "min_freq" in gpu_target
+    max_flag = "max_freq" in gpu_target
+    gov_flag = "governor" in gpu_target
+    if min_flag and gpu_target["min_freq"] not in gpu_info["available_freq"]:
+        return -1
+    if max_flag and gpu_target["max_freq"] not in gpu_info["available_freq"]:
+        return -2
+    if min_flag and not max_flag and gpu_target["min_freq"] > gpu_info["max_freq"]:
+        return -3
+    if max_flag and not min_flag and gpu_target["max_freq"] < gpu_info["min_freq"]:
+        return -4
+    if min_flag and max_flag and gpu_target["min_freq"] > gpu_target["max_freq"]:
+        return -5
+    if min_flag and not max_flag:
+        f = open(gpu_path + "/min_freq", "w")
+        f.write(str(gpu_target["min_freq"]))
+        f.close()
+    if max_flag and not min_flag:
+        f = open(gpu_path + "/max_freq", "w")
+        f.write(str(gpu_target["max_freq"]))
+        f.close()
+    if min_flag and max_flag:
+        if gpu_target["min_freq"] > gpu_info["max_freq"]:
+            f_max = open(gpu_path + "/max_freq", "w")
+            f_max.write(str(gpu_target["max_freq"]))
+            f_max.close()
+            f_min = open(gpu_path + "/min_freq", "w")
+            f_min.write(str(gpu_target["min_freq"]))
+            f_min.close()
+        else:
+            f_min = open(gpu_path + "/min_freq", "w")
+            f_min.write(str(gpu_target["min_freq"]))
+            f_min.close()
+            f_max = open(gpu_path + "/max_freq", "w")
+            f_max.write(str(gpu_target["max_freq"]))
+            f_max.close()
+    if gov_flag:
+        if gpu_target["governor"] not in gpu_info["available_gov"]:
+            return -6
+        # f = open(gpu_path + "/governor", "w")
+        # f.write(gpu_target["governor"])
+        # f.close()
+    return 0
