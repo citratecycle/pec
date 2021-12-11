@@ -31,6 +31,7 @@ def create_model_file_name( args ):
     '''
     name =  'models_new/' + \
             args.model_name + '_' + \
+            args.task + '_' + \
             args.train_mode + '_' + \
-            args.early_exit_json.split( '/' )[-1].split( '.' )[0]
+            args.trained_file_suffix
     return name + '.pt'

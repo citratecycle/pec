@@ -1,4 +1,0 @@
-Files already downloaded and verified
-current device is 0
-Accuracy of the network on the 10000 test images: 72 %
-early exit 1: 0.000% (0/10000) | early exit 3: 1.000% (10000/10000) | original: 0.000% (0/10000)

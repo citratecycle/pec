@@ -1,3 +1,4 @@
+from torch.nn import parameter
 import torch.nn.functional as F
 import torch
 import torch.nn as nn
@@ -8,10 +9,10 @@ class LogisticConvBoF(nn.Module):
     
     def __init__(self, input_features, n_codewords, split_horizon=2):
         '''
-        [split_horizon] is the kernel size, as well as the stride of average pooling
-        if the channel size is not a multiple of kernel size, the remainder will be discarded
-            e.g. if channel size is 28, when applied by kernel of 6 * 6, the output channel
-            size is 4 * 4
+        usually, 
+            [input_features] = [the number of channels of the prescedent parameters]
+            [n_codewords] = [the number of codewords, usually 64]
+            [split_horizon] is the input image size
         '''
         super(LogisticConvBoF, self).__init__()
         self.codebook = nn.Conv2d(input_features, n_codewords, kernel_size=1)
@@ -41,6 +42,10 @@ class LogisticConvBoF(nn.Module):
                 calculate the normalized u_ijk
             5. [x = F.avg_pool2d]: instead of summing up u_ijk along dim1, only sum up some
                 of them specified by kernel size
+            6. [split_horizon] is the kernel size, as well as the stride of average pooling
+                if the channel size is not a multiple of kernel size, the remainder will be discarded
+                e.g. if channel size is 28, when applied by kernel of 6 * 6, the output channel
+                size is 4 * 4
         '''
         x = self.codebook(input)
 
@@ -57,3 +62,8 @@ class LogisticConvBoF(nn.Module):
 
         return x
 
+
+if __name__ == '__main__':
+    model = LogisticConvBoF( 1,1,1 )
+    for name, parameter in model.named_parameters():
+        print( name )

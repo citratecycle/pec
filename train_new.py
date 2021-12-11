@@ -50,6 +50,7 @@ def train_normal( args ):
     for epoch_idx in range( hyper.epoch_num ):
         if num_no_increase >= 5:
             print( 'early exit is triggered' )
+            if args.save: torch.save( model, utils.create_model_file_name( args ) )
             return
         print(f'\nEpoch: {(epoch_idx + 1)}')
         train_loss = 0
@@ -68,7 +69,7 @@ def train_normal( args ):
             correct += predicted.eq( labels ).sum().item()
             if batch_idx % 100 == 99:    # print every 100 mini-batches
                 # for debug
-                print( f'outputs = {outputs.sum()}' )
+                # print( f'outputs = {outputs.sum()}' )
                 # end debug
                 print('[%d, %5d] loss: %.5f |  Acc: %.3f%% (%d/%d)' %
                     (epoch_idx + 1, batch_idx + 1, train_loss / 2000, 100.*correct/total, correct, total))
@@ -82,7 +83,7 @@ def train_normal( args ):
             else:
                 num_no_increase += 1
     test_normal( model, args, verbose=True )
-    torch.save( model, utils.create_model_file_name( args ) )
+    if args.save: torch.save( model, utils.create_model_file_name( args ) )
 
 
 def test_normal( model, args, verbose=False ):
@@ -114,9 +115,14 @@ def test_normal( model, args, verbose=False ):
                 outputs = model( images )
                 _, predicted = torch.max( outputs, 1 )
                 c = ( predicted == labels ).squeeze()
-                for i in range(labels.shape.numel()):
-                    label = labels[i]
-                    class_correct[label] += c[i].item()
+                if labels.shape.numel() > 1:
+                    for i in range(labels.shape.numel()):
+                        label = labels[i]
+                        class_correct[label] += c[i].item()
+                        class_total[label] += 1
+                else:
+                    label = labels[0]
+                    class_correct[label] += c.item()
                     class_total[label] += 1
         for i in range( 10 ):
             print('Accuracy of %5s : %2d %%' % (
@@ -144,6 +150,7 @@ def train_original( args ):
     for epoch_idx in range( hyper.epoch_num ):
         if num_no_increase >= 5:
             print( 'early exit is triggered' )
+            if args.save: torch.save( model, utils.create_model_file_name( args ) )
             return
         print(f'\nEpoch: {(epoch_idx + 1)}')
         train_loss = 0
@@ -173,7 +180,8 @@ def train_original( args ):
             else:
                 num_no_increase += 1
     test_normal( model, args, verbose=True )
-    torch.save( model, utils.create_model_file_name( args ) )
+    # print( utils.create_model_file_name( args ) )
+    if args.save: ( model, utils.create_model_file_name( args ) )
 
 
 def train_exits( args ):
@@ -221,14 +229,14 @@ def train_exits( args ):
                 for exit_idx in range( len( exit_tuple ) ):
                     print( '| exit'+str(exit_idx)+': %.3f%% (%d/%d)' % (100.*correct_exit[exit_idx]/total, correct_exit[exit_idx], total), end='' )
                 print( '' )
-                model.print_average_activations()
+                # model.print_average_activations()
                 train_loss, total = 0, 0
                 correct_exit = None
         if epoch_idx % 5 == 4:
             print( f'begin middle test:' )
             test_exits( model, args )
     test_exits( model, args )
-    torch.save( model, utils.create_model_file_name( args ) )
+    if args.save: torch.save( model, utils.create_model_file_name( args ) )
 
 
 def test_exits( model, args ):
@@ -240,21 +248,27 @@ def test_exits( model, args ):
         train_flag = True
     else:
         train_flag = False
-    correct_exit1, correct_exit3 = 0, 0
+    correct_exit = [0 for i in range( model.exit_num )]
     total = 0
     test_loader = gp.get_dataloader( args, task='test' )
     with torch.no_grad():
         for data in test_loader:
             images, labels = data
             images, labels = images.to( args.device ), labels.to( args.device )
-            exit1, exit3 = model( images )
-            _, exit1_predicted = exit1.max( 1 )
-            _, exit3_predicted = exit3.max( 1 )
+            
+            exit_tuple = model( images )
+            exit_predicted_list = [None for i in range( len( exit_tuple ) )]
+            for exit_idx in range( len( exit_tuple ) ):
+                if len( exit_tuple[exit_idx].shape ) > 1:
+                    _, exit_predicted_list[exit_idx] = exit_tuple[exit_idx].max( dim=1 )
+                else:
+                    _, exit_predicted_list[exit_idx] = exit_tuple[exit_idx].max( dim=0 )
             total += labels.size( 0 )
-            correct_exit1 += exit1_predicted.eq( labels ).sum().item()
-            correct_exit3 += exit3_predicted.eq( labels ).sum().item()
-        print( 'Accuracy of the network on the 10000 test images: \nexit1: %d %% | exit3: %d %%' %
-            (100.*correct_exit1/total,
-             100.*correct_exit3/total ))
+            for exit_idx in range( len( exit_tuple ) ):
+                correct_exit[exit_idx] += exit_predicted_list[exit_idx].eq( labels ).sum().item()
+        print( 'Accuracy of the network on the 10000 test images: \n', end='' )
+        for exit_idx in range( len( exit_tuple ) ):
+            print( 'exit'+str(exit_idx)+': %.3f%% (%d/%d)' % (100.*correct_exit[exit_idx]/total, correct_exit[exit_idx], total), end=' | ' )
+        print( '' )
     if train_flag:
         model.train()
