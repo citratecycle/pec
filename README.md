@@ -1,4 +1,4 @@
-### python environment:
+### python Environment:
 I've configured the conda environment under my user directory "/home/louchenfei", so directly typing `python` should envoke the correct python package.  
 to verify that the correct environment is used, there should be '(/home/louchenfei/anaconda3)' appearing in front of the bash prompt. And by typing `which python` in terminal, it should return `/home/louchenfei/anaconda3/bin/python`
 
@@ -11,6 +11,8 @@ to verify that the correct environment is used, there should be '(/home/louchenf
 - model.py
 - train_new.py
 - utils_new.py
+
+### Run the Codes
 
 when it is finished, we can directly call  
 `python main_new.py --model_name MODEL_NAME --pretrained_file PRETRAINED_FILE_NAME --optimizer OPTIM_NAME --train_mode TRAIN_MODE --evaluate_mode EVALUATE_MODE --task TASK --device DEVICE --save SAVE`  
@@ -35,7 +37,12 @@ Their meanings are specified as below. Note that not all arguments are meaningfu
 Finally, we can change the setting of hyperparameters by making corresponding changes in `global_param.py`.
 
 
-### the process for training:
+### Process for Training:
 1. configure the hyperparameters in `global_param.py`. E.g. for normal training mode of vgg network, configure the parameters in the namespace `vgg_normal_train_hyper`
 2. type the command. E.g. for training vgg using 'normal' mode on gpu, type:  
 `python main_new.py --model_name vgg --optimizer adam --train_mode normal --task train --device cuda --pretrained_file models_new/cifar_exits_default.pt > experimental_results_new/vgg_train_normal.txt`
+
+
+### Testcases
+1. Baseline:
+`sudo python3 main.py --pretrained_file models_new/vgg19_normal_update_1.pt --evaluate_mode normal --baseline 1 --scene `

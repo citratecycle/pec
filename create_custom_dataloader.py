@@ -10,7 +10,7 @@ PROJECT:        ECE4730J Advanced Embedded System Capstone Project
 """
 
 import pandas as pd
-from torch.utils.data import Dataset, DataLoader, dataloader, dataset
+from torch.utils.data import Dataset, DataLoader
 import torch
 
 import global_param as gp
@@ -169,3 +169,28 @@ def store_dataset():
 if __name__ == '__main__':
     # store_dataset()
     dataset_check()
+
+
+# dataset_list = [custom_cifar() for i in range(10)]
+# for idx, (image, label) in enumerate( original_dataloader ):
+#     if idx < 1000:
+#         dataset_list[0].add_item( (image[0], label) )
+#     elif idx < 2000:
+#         dataset_list[1].add_item( (image[0], label) )
+#     elif idx < 3000:
+#         dataset_list[2].add_item( (image[0], label) )
+#     elif idx < 4000:
+#         dataset_list[3].add_item( (image[0], label) )
+#     elif idx < 5000:
+#         dataset_list[4].add_item( (image[0], label) )
+#     elif idx < 6000:
+#         dataset_list[5].add_item( (image[0], label) )
+#     elif idx < 7000:
+#         dataset_list[6].add_item( (image[0], label) )
+#     elif idx < 8000:
+#         dataset_list[7].add_item( (image[0], label) )
+#     elif idx < 9000:
+#         dataset_list[8].add_item( (image[0], label) )
+#     else:
+#         dataset_list[9].add_item( (image[0], label) )
+# print( [len(i) for i in dataset_list] )

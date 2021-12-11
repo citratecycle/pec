@@ -19,6 +19,7 @@ import utils_new as utils
 from train_new import test_exits
 import create_custom_dataloader as ccd
 from create_custom_dataloader import custom_cifar
+from power_management_api import api
 
 def get_inference_model( args ):
     '''
@@ -42,6 +43,56 @@ def get_inference_model( args ):
     return eval_model
 
 
+def hardware_sanity_check( args ):
+    if args.core_num not in [2, 4]:
+        print( f'Error: core_num ({args.core_num}) is invalid, should be among [2, 4]' )
+        raise NotImplementedError
+    if args.cpu_freq_level not in [4, 8, 12]:
+        print( f'Error: cpu_freq_level ({args.cpu_freq_level}) is invalid, should be among [1, 2, 3]' )
+        raise NotImplementedError
+    if args.gpu_freq_level not in [2, 5, 8]:
+        print( f'Error: gpu_freq_level ({args.gpu_freq_level}) is invalid, should be among [1, 2, 3]' )
+        raise NotImplementedError
+    if args.scene not in ['continuous', 'periodical']:
+        print( f'Error: scene ({args.scene}) is invalid, should be among [continuous, periodical]' )
+        raise NotImplementedError
+
+
+def hardware_setup( args ):
+    '''
+    configure the hardwares (cpus, gpus, frequency, number of cores, sleep time and so on)
+    '''
+    hardware_sanity_check()
+    # to configure cpu core nums
+    cpu_list = []
+    cpu_list.append( gp.get_cpu_target( 0 ) )
+    cpu_list.append( gp.get_cpu_target( 1 ) )
+    if args.core_num == 4 or args.baseline:
+        cpu_list.append( gp.get_cpu_target( 2 ) )
+        cpu_list.append( gp.get_cpu_target( 3 ) )
+    else:
+        cpu_list.append( gp.get_cpu_target( 2, cpu_online=False ) )
+        cpu_list.append( gp.get_cpu_target( 3, cpu_online=False ) )
+    # to configure cpu frequency
+    if args.baseline:
+        for cpu in cpu_list: 
+            cpu['min_freq'] = gp.cpu_max_freq
+            cpu['max_freq'] = gp.cpu_max_freq
+    else:
+        for cpu in cpu_list:
+            cpu['min_freq'] = gp.cpu_freq_levels[args.cpu_freq_level]
+            cpu['max_freq'] = gp.cpu_freq_levels[args.cpu_freq_level]
+    # to configure gpu frequency
+    if args.baseline:
+        gpu = gp.get_gpu_target( min_freq=gp.gpu_max_freq, max_freq=gp.gpu_max_freq )
+    else:
+        gpu = gp.get_cpu_target( min_freq=gp.gpu_freq_levels[args.gpu_freq_level], 
+                                 max_freq=gp.gpu_freq_levels[args.gpu_freq_level] )
+    # realize the hardware settings
+    api.set_cpu_state( cpu_list )
+    api.set_gpu_state( gpu )
+
+
 def inference( args ):
     '''
     conduct the inference
@@ -49,39 +100,62 @@ def inference( args ):
     2. do the test using the functions in train_new.py
     3. save the model
     '''
+    # configure the hardware according to arguments
+    hardware_setup()
+    # get the model
     model = get_inference_model( args )
-
     model.eval()
     correct = 0
     total = 0
-    data_size = 10000
-    # test_loader = gp.get_dataloader( args, task='test' )
-    test_loader = ccd.get_dataloader( 'easy' )
-    if args.evaluate_mode == 'exits':
+    # generate the data loader
+    num_testcase = gp.num_testcase_continuous if args.scene == 'continuous' else gp.num_testcase_periodical
+    dataset = custom_cifar()
+    dataloader_list = []
+    for idx in range( num_testcase ):
+        dataloader_list.append( DataLoader( torch.load( 'dataset_new/dataset_1000_'+str(idx)+'.pt',
+                                            batch_size=1,
+                                            shuffle=True,
+                                            num_workers=4 ) )
+    # do the inference
+    if args.evaluate_mode == 'exits' and args.stat_each_layer:
         correct_list = [0 for _ in range( model.exit_num + 1 )]
         total_list = [0 for _ in range( model.exit_num + 1 )]
+    period = args.baseline_time + args.sleep_time
     st_time = time.perf_counter()
     with torch.no_grad():
-        for index, data in enumerate( test_loader ): 
-            if index > data_size: break
-            images, labels = data
-            images, labels = images.to( args.device ), labels.to( args.device )
-            outputs = model( images )
-            if args.evaluate_mode == 'exits':
-                exit_layer, outputs = outputs
-            _, predicted = torch.max(outputs.data, 1)
-            total += labels.size( 0 )
-            correct += ( predicted == labels ).sum().item()
-            if args.evaluate_mode == 'exits':
-                total_list[exit_layer] += labels.size( 0 )
-                correct_list[exit_layer] += ( predicted == labels ).sum().item()
+        # the loop for test cases
+        for case_idx in range( num_testcase ):
+            # the loop for images
+            for index, data in enumerate( dataloader_list[case_idx] ): 
+                pre_inference_time = time.perf_counter()
+                images, labels = data
+                images, labels = images.to( args.device ), labels.to( args.device )
+                outputs = model( images )
+                if args.evaluate_mode == 'exits':
+                    exit_layer, outputs = outputs
+                _, predicted = torch.max(outputs.data, 1)
+                total += labels.size( 0 )
+                correct += ( predicted == labels ).sum().item()
+                if args.evaluate_mode == 'exits' and args.stat_each_layer:
+                    total_list[exit_layer] += labels.size( 0 )
+                    correct_list[exit_layer] += ( predicted == labels ).sum().item()
+                # sleep control
+                post_inference_time = time.perf_counter()
+                inference_time = post_inference_time - pre_inference_time
+                sleep_time = period - inference_time   # at least 0.5 second for wake up
+                if args.scene == 'periodical' and args.baseline == 0:
+                    # sleep
+                    assert api.sleep_with_time( int(sleep_time-0.5) ) == 0
+                elif args.scene == 'periodical' and args.baseline == 1:
+                    # polling without sleep
+                    while time.perf_counter() - post_inference_time < sleep_time: pass
+    end_time = time.perf_counter()
     general_acc = 100 * correct / total
     if args.evaluate_mode == 'exits':
         acc_list = [correct_list[i]/total_list[i] if total_list[i] != 0 else None for i in range( len( correct_list ) )]
-    end_time = time.perf_counter()
     print( f'time consumed: {end_time - st_time}' )
     print('Accuracy of the network on the 10000 test images: %d %%' % general_acc)
-    if args.evaluate_mode == 'exits':
+    if args.evaluate_mode == 'exits' and args.stat_each_layer:
         for exit_idx in range( len( correct_list ) ):
             if acc_list[exit_idx] != None:
                 print( f'exit{str(exit_idx)}: {100*acc_list[exit_idx]: .3f}%', end=' | ' )

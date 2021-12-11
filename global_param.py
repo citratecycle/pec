@@ -43,11 +43,47 @@ vgg19_normal_layer_names = [
 
 average_activation_train_size = 5000
 
+cpu_freq_levels = {
+    4: 806400,      # level 4 out of 12
+    8: 1420800,     # level 8 out of 12
+    12: 2035200     # level 12 out of 12
+}
+
+gpu_freq_levels = {
+    2: 216750000,   # level 2 out of 13
+    5: 522750000,   # level 5 out of 13
+    8: 854250000    # level 8 out of 13
+}
+
+cpu_max_freq = 2035200
+
+gpu_max_freq = 1300500000
+
+num_testcase_continuous = 5
+
+num_testcase_periodical = 3
+
 ##############################################################################
 ###                                 METHOD                                 ###
 ##############################################################################
 
 criterion = nn.CrossEntropyLoss()
+
+def get_cpu_target( cpu_idx, cpu_online=True, min_freq=345600, max_freq=2035200, governer='schdeutil' ):
+    return {
+        "cpu_idx": cpu_idx,
+        "cpu_online": cpu_online,
+        "min_freq": min_freq,
+        "max_freq": max_freq,
+        "governor": governer
+    }
+
+def get_gpu_target( min_freq=345600, max_freq=2035200, governer='nvhost_podgov' ):
+    return {
+        "min_freq": min_freq,
+        "max_freq": max_freq,
+        "governor": governer
+    }
 
 def get_optimizer( params, lr, op_type ):
     if op_type == 'adam':
@@ -293,4 +329,3 @@ cifar_test_dataset = torchvision.datasets.CIFAR10(  root='./data/cifar10/',
                                                     train=False, 
                                                     transform=cifar_normal_train_hyper.transform, 
                                                     download=False )
-
