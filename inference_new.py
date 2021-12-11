@@ -122,6 +122,7 @@ def inference( args ):
         total_list = [0 for _ in range( model.exit_num + 1 )]
     period = args.baseline_time + args.sleep_time
     st_time = time.perf_counter()
+    print( f'timestamp: {st_time}' )
     with torch.no_grad():
         # the loop for test cases
         for case_idx in range( num_testcase ):
